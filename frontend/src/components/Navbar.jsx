@@ -1,21 +1,19 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
 const Navbar = () => {
 
     const navigate = useNavigate();
-    const [showMenu, setShowMenu] = useState(false)
     const [token, setToken] = useState(!!localStorage.getItem('token'));
     const [profilePic, setProfilePic] = useState(assets.profile_pic);
     // Sync token state with localStorage changes
-    React.useEffect(() => {
+    useEffect(() => {
         const syncToken = () => setToken(!!localStorage.getItem('token'));
         window.addEventListener('storage', syncToken);
         return () => window.removeEventListener('storage', syncToken);
     }, []);
     // Fetch user profile image when token changes
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchProfile = async () => {
             if (!localStorage.getItem('token')) { setProfilePic(assets.profile_pic); return; }
             try {

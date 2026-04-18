@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import API from "../api";
 import { AppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
@@ -43,7 +43,7 @@ const MyAppointments = () => {
       {message && <div className="mb-4 text-green-600 font-semibold">{message}</div>}
       <div>
         {appointments.length === 0 && <p>No appointments found.</p>}
-        {appointments.map((item, index) => {
+        {appointments.map((item) => {
           // Find doctor by id or name
           let doc = doctors.find(d => d._id === item.doctor || d.name === item.doctor);
           return (

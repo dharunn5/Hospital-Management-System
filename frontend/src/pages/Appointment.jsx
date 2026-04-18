@@ -1,7 +1,6 @@
-import React, { useContext } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
-import { useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import RelatedDoctors from '../components/RelatedDoctors'
 
@@ -15,30 +14,16 @@ const Appointment = () => {
   const [docSlots, setDocSlots] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
   const [slotTime, setSlotTime] = useState('');
-  const [bookedSlots, setBookedSlots] = useState([]);
+  const [, setBookedSlots] = useState([]);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
   const [isBooking, setIsBooking] = useState(false);
 
   useEffect(() => {
     const doc = doctors.find(doc => doc._id === docId);
     setDocInfo(doc);
-    if (doc && doc._id) fetchBookedSlots(doc._id);
   }, [doctors, docId]);
 
-  const fetchBookedSlots = async (doctorId) => {
-    if (!doctorId) return;
-    try {
-      const API = (await import('../api')).default;
-      const res = await API.get(`/appointment/slots/${doctorId}`);
-      setBookedSlots(res.data);
-      getAvailableSlots(res.data);
-    } catch {
-      setBookedSlots([]);
-      getAvailableSlots([]);
-    }
-  };
-
-  const getAvailableSlots = async (booked = []) => {
+  const getAvailableSlots = useCallback(async (booked = []) => {
     let today = new Date();
     let days = [];
     for (let i = 0; i < 7; i++) {
@@ -72,25 +57,26 @@ const Appointment = () => {
       days.push(slots);
     }
     setDocSlots(days);
-  }
+  }, []);
 
+  const fetchBookedSlots = useCallback(async (doctorId) => {
+    if (!doctorId) return;
+    try {
+      const API = (await import('../api')).default;
+      const res = await API.get(`/appointment/slots/${doctorId}`);
+      setBookedSlots(res.data);
+      getAvailableSlots(res.data);
+    } catch {
+      setBookedSlots([]);
+      getAvailableSlots([]);
+    }
+  }, [getAvailableSlots]);
 
 
   useEffect(() => {
-    const fetchBookedSlots = async () => {
-      if (!docInfo) return;
-      try {
-        const API = (await import('../api')).default;
-        const res = await API.get(`/appointment/slots/${docInfo._id || docInfo.name}`);
-        setBookedSlots(res.data);
-        getAvailableSlots(res.data);
-      } catch {
-        setBookedSlots([]);
-        getAvailableSlots([]);
-      }
-    };
-    fetchBookedSlots();
-  }, [docInfo])
+    if (!docInfo) return;
+    fetchBookedSlots(docInfo._id || docInfo.name);
+  }, [docInfo, fetchBookedSlots])
 
   useEffect(() => {
     console.log(docSlots);
@@ -199,7 +185,17 @@ const Appointment = () => {
                 setIsBooking(true);
                 try {
                   const token = localStorage.getItem('token');
-                  const res = await (await import('../api')).default.post(
+                  if (!token || token === 'undefined' || token === 'null') {
+                    localStorage.removeItem('token');
+                    setToast({ show: true, type: 'error', message: 'Please login before booking.' });
+                    setTimeout(() => {
+                      setToast({ show: false, type: '', message: '' });
+                      window.location.href = '/login';
+                    }, 1500);
+                    return;
+                  }
+
+                  await (await import('../api')).default.post(
                     '/appointment',
                     { 
                       doctor: docInfo._id, 
@@ -223,8 +219,17 @@ const Appointment = () => {
                 } catch (err) {
                   console.error('Booking error:', err);
                   const errorMessage = err?.response?.data?.msg || 'Booking failed. Please try again.';
-                  setToast({ show: true, type: 'error', message: errorMessage });
-                  setTimeout(() => setToast({ show: false, type: '', message: '' }), 3000);
+                  if (err?.response?.status === 401 || errorMessage === 'Invalid token') {
+                    localStorage.removeItem('token');
+                    setToast({ show: true, type: 'error', message: 'Session expired. Please login again.' });
+                    setTimeout(() => {
+                      setToast({ show: false, type: '', message: '' });
+                      window.location.href = '/login';
+                    }, 1500);
+                  } else {
+                    setToast({ show: true, type: 'error', message: errorMessage });
+                    setTimeout(() => setToast({ show: false, type: '', message: '' }), 3000);
+                  }
                 } finally {
                   setIsBooking(false);
                 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import API from "../api";
 import { assets } from "../assets/assets";
 
@@ -83,6 +83,7 @@ const MyProfile = () => {
       // Notify Navbar/profile pic to update
       window.dispatchEvent(new Event('profile-updated'));
     } catch (err) {
+      console.error(err);
       setMessage('Failed to update profile');
       window.dispatchEvent(new Event('profile-updated'));
     }

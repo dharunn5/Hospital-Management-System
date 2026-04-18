@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import API from '../api';
 
 const Login = () => {
@@ -6,7 +6,7 @@ const Login = () => {
   const [state, setState] = useState('Sign Up');
 
   // If already logged in, redirect to home
-  React.useEffect(() => {
+  useEffect(() => {
     if (localStorage.getItem('token')) {
       window.location.href = '/';
     }
@@ -18,7 +18,7 @@ const Login = () => {
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("error"); // 'success' or 'error'
-  React.useEffect(() => {
+  useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 5000);
       return () => clearTimeout(timer);

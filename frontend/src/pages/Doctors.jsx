@@ -1,4 +1,4 @@
-import React,{useContext,useEffect,useState} from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 
@@ -10,16 +10,13 @@ const Doctors = () => {
   const [filterDoc,setFilterDoc] = useState([]);
   const navigate = useNavigate()
  
-const applyFilter = () => {
-  if (speciality) {
-    setFilterDoc(doctors.filter(doc=> doc.speciality === speciality));
-  } else {
-    setFilterDoc(doctors);
-  }
-}
-  useEffect(()=> {
-    applyFilter()
-  },[doctors,speciality])
+  useEffect(() => {
+    if (speciality) {
+      setFilterDoc(doctors.filter(doc => doc.speciality === speciality));
+    } else {
+      setFilterDoc(doctors);
+    }
+  }, [doctors, speciality])
 
 
 
