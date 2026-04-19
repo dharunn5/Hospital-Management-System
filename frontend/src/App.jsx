@@ -9,7 +9,7 @@ import Appointment from './pages/Appointment'
 import Navbar from './components/Navbar'
 import Contact from './pages/Contact'
 import Footer from './components/Footer'
-
+const API = import.meta.env.VITE_API_URL;
 const App = () => {
   return (
     <>
