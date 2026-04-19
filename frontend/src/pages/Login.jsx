@@ -42,7 +42,13 @@ const Login = () => {
         }
       } else {
         // Login
-        const res = await API.post('/auth/login', { email, password });
+        //const res = await API.post('/auth/login', { email, password });
+        //devops
+        const res = await API.post(
+  '/auth/signup',
+  { name, email, password },
+  { withCredentials: true }
+);
         setMessageType('success');
         setMessage(res.data.msg || 'Login successful!');
         if (res.data.token) {

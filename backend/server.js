@@ -8,7 +8,12 @@ const path = require('path');
 
 const app = express();
 
-app.use(cors());
+//app.use(cors());
+//for devops
+app.use(cors({
+  origin: "http://localhost",
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
